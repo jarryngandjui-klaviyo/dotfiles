@@ -4,7 +4,7 @@ local options = {
   workspaces = {
     {
       name = "secondbrain",
-      path = "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Second brain",
+      path = "~/Notes",
     },
     -- use obsidian outside of vault
     {
