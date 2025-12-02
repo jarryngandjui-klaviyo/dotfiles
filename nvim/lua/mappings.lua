@@ -19,8 +19,9 @@ map("n", "<leader>gho", ":DiffviewFileHistory<CR>", { desc = "Git File History" 
 map("n", "<leader>ghc", ":DiffviewClose<CR>", { desc = "Close the current diffview" })
 map("n", "<leader>gc", ":DiffviewOpen HEAD~1<CR>", { desc = "Git Last Commit" })
 
--- Tmux navigator
-map("n", "<C-l>", "<cmd>:TmuxNavigateRight<cr>", { desc = "Tmux Right" })
-map("n", "<C-h>", "<cmd>:TmuxNavigateLeft<cr>", { desc = "Tmux Left" })
-map("n", "<C-k>", "<cmd>:TmuxNavigateUp<cr>", { desc = "Tmux Up" })
-map("n", "<C-j>", "<cmd>:TmuxNavigateDown<cr>", { desc = "Tmux Down" })
+-- Obsidian
+-- map("n", "<leader>obi", ":ObsidianPasteImg", { desc = "Obsidian paste image from clipboard" }) -- pasting images needs work
+map("n", "<leader>obl", ":ObsidianBacklinks<CR>", { desc = "Obsidian references to the current buffer" })
+map("n", "<leader>obo", ":ObsidianTOC<CR>", { desc = "Obsidian outline" })
+map("n", "<leader>obs", ":ObsidianSearch<CR>", { desc = "Obsidian search with ripgrep" })
+map("n", "<leader>obt", ":ObsidianTemplate<CR>", { desc = "Obsidian insert template" })

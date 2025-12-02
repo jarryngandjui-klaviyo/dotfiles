@@ -80,7 +80,6 @@ check-homebrew:
 
 install-brew-packages: check-homebrew
 	@$(MAKE) install-brew-package PACKAGE=ripgrep TYPE=formula
-	@$(MAKE) install-brew-package PACKAGE=n TYPE=formula
 	@$(MAKE) install-brew-package PACKAGE=fd TYPE=formula
 	@$(MAKE) install-brew-package PACKAGE=pnpm TYPE=formula
 	@$(MAKE) install-brew-package PACKAGE=pipx TYPE=formula
@@ -92,6 +91,7 @@ install-brew-packages: check-homebrew
 	@$(MAKE) install-brew-package PACKAGE=zsh TYPE=formula
 	@$(MAKE) install-brew-package PACKAGE=starship TYPE=formula
 	@$(MAKE) install-brew-package PACKAGE=zsh-history-substring-search TYPE=formula
+	@$(MAKE) install-brew-package PACKAGE=pngpaste TYPE=formula # nvim obsidian image paste
 	@brew tap homebrew/cask-fonts 2>/dev/null || true
 	@$(MAKE) install-brew-package PACKAGE=font-jetbrains-mono-nerd-font TYPE=cask
 	@brew tap hashicorp/tap 2>/dev/null || true
