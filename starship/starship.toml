@@ -4,8 +4,8 @@ command_timeout = 1000
 # Left side: git branch and directory
 format = """$git_branch$directory$character"""
 palette = "catppuccin_mocha"
-# Right side: aws, terraform, python, and nodejs
-right_format = """$aws$terraform$python$nodejs"""
+# Right side: python
+# right_format = """$aws$terraform$python$nodejs"""
 
 [battery]
 disabled = true

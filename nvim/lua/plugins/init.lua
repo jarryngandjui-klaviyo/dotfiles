@@ -132,13 +132,22 @@ return {
   },
 
   {
-    'MeanderingProgrammer/render-markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' },            -- if you use the mini.nvim suite
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.icons' },        -- if you use standalone mini plugins
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
-    ---@module 'render-markdown'
-    ---@type render.md.UserConfig
-    opts = {},
+    "MeanderingProgrammer/markdown.nvim",
+    name = "render-markdown",
+    enabled = true,
+    lazy = false, -- Force immediate load
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter", -- Mandatory
+      "nvim-tree/nvim-web-devicons",     -- Optional but recommended
+    },
+    ft = { "markdown", "md" },
+    config = function()
+      require("render-markdown").setup({
+        enabled = false,
+        file_types = { "markdown", "codecompanion" },
+        anti_conceal = { enabled = false }
+      })
+    end
   },
 }
 

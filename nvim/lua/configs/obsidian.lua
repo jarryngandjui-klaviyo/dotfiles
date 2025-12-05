@@ -1,5 +1,8 @@
 vim.opt.conceallevel = 1
 
+-- Link to the documentation
+-- https://github.com/epwalsh/obsidian.nvim/blob/14e0427bef6c55da0d63f9a313fd9941be3a2479/README.md?plain=1#L387
+
 local options = {
   workspaces = {
     {
@@ -35,6 +38,16 @@ local options = {
   ui = {
     enable = false,  -- use render-markdown plugin for ui 
   },
+
+  -- Optional, by default when you use `:ObsidianFollowLink` on a link to an external
+  ---@param url string
+  follow_url_func = function(url)
+    -- Open the URL in the default web browser.
+    vim.fn.jobstart({"open", url})  -- Mac OS
+    -- vim.fn.jobstart({"xdg-open", url})  -- linux
+    -- vim.cmd(':silent exec "!start ' .. url .. '"') -- Windows
+    -- vim.ui.open(url) -- need Neovim 0.10.0+
+  end,
 }
 
 return options
