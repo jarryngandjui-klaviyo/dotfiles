@@ -216,8 +216,14 @@ setup-neovim:
 	@$(MAKE) install-brew-package PACKAGE=neovim TYPE=formula
 
 setup-nvim-config:
-	@echo "$(YELLOW)Setting up Neovim configuration...$(NC)"; \
+	@echo "$(YELLOW)Clean up Neovim configuration...$(NC)"; \
+	# Linux / MacOS (unix)
+	rm -rf ~/.config/nvim; \
+	rm -rf ~/.local/state/nvim; \
+	rm -rf ~/.local/share/nvim; \
 	NVIM_DIR="$(CONFIG_DIR)/nvim"; \
+	git clone https://github.com/NvChad/starter "$$NVIM_DIR"; \
+	echo "$(YELLOW)Setting up Neovim configuration...$(NC)"; \
 	mkdir -p "$$NVIM_DIR/.backup" "$$NVIM_DIR/lua/config" "$$NVIM_DIR/lua/plugins" "$$NVIM_DIR/lua/custom"; \
 	ln -sf $(DOTFILES_CONFIG_DIR)/nvim/init.lua "$$NVIM_DIR/init.lua"; \
 	ln -sf $(DOTFILES_CONFIG_DIR)/nvim/lazy-lock.json "$$NVIM_DIR/lazy-lock.json"; \
