@@ -1,4 +1,16 @@
+local config_root = vim.fn.stdpath('config')
+
 return {
+  -- Import custom plugigns
+  {
+    'custom.git', 
+    dir = config_root .. '/lua',
+    lazy = false, 
+    config = function()
+        require('custom.git').setup()
+    end
+  },  
+
   -- Improve vim skills by playing games
   {
     "ThePrimeagen/vim-be-good",

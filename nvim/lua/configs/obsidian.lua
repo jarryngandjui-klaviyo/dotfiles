@@ -28,12 +28,13 @@ local options = {
     },
   },
   templates = {
-    folder = "5. Templates",
+    folder = "5.templates",
     date_format = "%Y-%m-%d-%a",
     time_format = "%H:%M",
   },
+  new_notes_location = "1.quick_notes",
   attachments = {
-    img_folder = "7.\\ Files",  -- default folder to save images
+    img_folder = "7.files",  -- TODO: default folder to save images
   },
   ui = {
     enable = false,  -- use render-markdown plugin for ui 

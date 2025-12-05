@@ -218,7 +218,7 @@ setup-neovim:
 setup-nvim-config:
 	@echo "$(YELLOW)Setting up Neovim configuration...$(NC)"; \
 	NVIM_DIR="$(CONFIG_DIR)/nvim"; \
-	mkdir -p "$$NVIM_DIR/.backup" "$$NVIM_DIR/lua/config" "$$NVIM_DIR/lua/plugins"; \
+	mkdir -p "$$NVIM_DIR/.backup" "$$NVIM_DIR/lua/config" "$$NVIM_DIR/lua/plugins" "$$NVIM_DIR/lua/custom"; \
 	ln -sf $(DOTFILES_CONFIG_DIR)/nvim/init.lua "$$NVIM_DIR/init.lua"; \
 	ln -sf $(DOTFILES_CONFIG_DIR)/nvim/lazy-lock.json "$$NVIM_DIR/lazy-lock.json"; \
 	cd $(DOTFILES_CONFIG_DIR)/nvim && find . -type f | while read -r file; do \
