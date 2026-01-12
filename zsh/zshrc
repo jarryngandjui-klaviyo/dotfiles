@@ -1,4 +1,4 @@
-# === DOTFILES ZSH CONFIGURATION START - DO NOT EDIT MANUALLY ===
+#v=== DOTFILES ZSH CONFIGURATION START - DO NOT EDIT MANUALLY ===
 
 # Environment Variables
 # =====================
@@ -334,5 +334,11 @@ complete -o nospace -C /opt/homebrew/bin/terraform terraform
 # Starship prompt
 # ===============
 eval "$(starship init zsh)"
+
+# === TMUX AUTO-ATTACH ===
+# Start terminal in the same tmux session if not already in one
+if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
+    tmux attach-session -t workspace || tmux new-session -s workspace
+fi
 
 # === DOTFILES ZSH CONFIGURATION END - DO NOT EDIT MANUALLY ===

@@ -210,9 +210,9 @@ setup-carapace:
 
 # Neovim setup
 .PHONY: nvim
-nvim: homebrew setup-neovim setup-nvim-config setup-lsp-dependencies
+nvim: homebrew setup-nvim setup-nvim-config setup-lsp-dependencies
 
-setup-neovim:
+setup-nvim:
 	@$(MAKE) install-brew-package PACKAGE=neovim TYPE=formula
 
 setup-nvim-config:

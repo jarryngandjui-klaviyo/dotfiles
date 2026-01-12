@@ -1,19 +1,16 @@
 local config_root = vim.fn.stdpath('config')
 
 return {
-  -- Import custom plugigns
-  {
-    'custom.git', 
-    dir = config_root .. '/lua',
-    lazy = false, 
-    config = function()
-        require('custom.git').setup()
-    end
-  },  
-
   -- Improve vim skills by playing games
   {
     "ThePrimeagen/vim-be-good",
+  },
+
+  -- bookmark project files
+  {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    dependencies = { "nvim-lua/plenary.nvim" }
   },
 
   {
@@ -124,42 +121,55 @@ return {
     event = "VeryLazy",
   },
 
-  {
-    "epwalsh/obsidian.nvim",
-    version = "*",  -- recommended, use latest release instead of latest commit
-    lazy = true,
-    ft = "markdown",
-    -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
-    -- event = {
-    --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
-    --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/*.md"
-    --   -- refer to `:h file-pattern` for more examples
-    --   "BufReadPre path/to/my-vault/*.md",
-    --   "BufNewFile path/to/my-vault/*.md",
-    -- },
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-    opts = require "configs.obsidian",
-  },
+  -- {
+  --   "epwalsh/obsidian.nvim",
+  --   version = "*",  -- recommended, use latest release instead of latest commit
+  --   lazy = false,
+  --   ft = "markdown",
+  --   -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
+  --   -- event = {
+  --   --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+  --   --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/*.md"
+  --   --   -- refer to `:h file-pattern` for more examples
+  --   --   "BufReadPre path/to/my-vault/*.md",
+  --   --   "BufNewFile path/to/my-vault/*.md",
+  --   -- },
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim",
+  --   },
+  --   opts = require "configs.obsidian",
+  --   config = function(_, opts)
+  --       require('obsidian').setup(opts)
+  --   end
+  -- },
 
+  -- {
+  --   "MeanderingProgrammer/markdown.nvim",
+  --   name = "render-markdown",
+  --   enabled = true,
+  --   lazy = false, -- Force immediate load
+  --   dependencies = {
+  --     "nvim-treesitter/nvim-treesitter", -- Mandatory
+  --     "nvim-tree/nvim-web-devicons",     -- Optional but recommended
+  --   },
+  --   ft = { "markdown", "md" },
+  --   config = function()
+  --     require("render-markdown").setup({
+  --       enabled = false,
+  --       file_types = { "markdown", "codecompanion" },
+  --       anti_conceal = { enabled = false }
+  --     })
+  --   end
+  -- },
+
+  ---- block for all custom modules managed by custom/init.lua
   {
-    "MeanderingProgrammer/markdown.nvim",
-    name = "render-markdown",
-    enabled = true,
-    lazy = false, -- Force immediate load
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter", -- Mandatory
-      "nvim-tree/nvim-web-devicons",     -- Optional but recommended
-    },
-    ft = { "markdown", "md" },
+    'custom', 
+    dir = config_root .. '/lua',
+    lazy = false, 
     config = function()
-      require("render-markdown").setup({
-        enabled = false,
-        file_types = { "markdown", "codecompanion" },
-        anti_conceal = { enabled = false }
-      })
+        require('custom').setup()
     end
-  },
+  },  
 }
 

@@ -1,9 +1,3 @@
---[[
-  Custom Neovim Plugit for Git
-  :GitRemoteUrlOpen - Opens the current file's GitHub link in the browser.
-  :GitRemoteUrlCopy - Copies the current file's GitHub link to the system clipboard.
-]]
-
 local M = {}
 
 --- Finds the relative path of the current buffer to the Git repository root.
@@ -108,14 +102,12 @@ end
 
 -- Public initialization function called by lazy.nvim
 function M.setup()
-    -- :GitRemoteUrlOpen command
     vim.api.nvim_create_user_command('GitRemoteUrlOpen', open_link, {
         desc = 'Open current file remote GitHub link',
         bang = false,
         nargs = 0,
     })
 
-    -- :GitRemoteUrlCopy command
     vim.api.nvim_create_user_command('GitRemoteUrlCopy', copy_link, {
         desc = 'Copy current file remote GitHub link to clipboard',
         bang = false,
