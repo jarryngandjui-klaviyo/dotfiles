@@ -6,6 +6,8 @@ DOTFILES_DIR := $(shell pwd)
 DOTFILES_CONFIG_DIR := $(DOTFILES_DIR)
 HOME_DIR := $(HOME)
 CONFIG_DIR := $(HOME_DIR)/.config
+CLAUDE_SKILLS_DIR := $(HOME_DIR)/.claude/skills
+AGENTS_SKILLS_DIR := $(DOTFILES_DIR)/agents/skills
 
 # Colors for output
 GREEN := \033[0;32m
@@ -29,6 +31,7 @@ help:
 	@echo "  nvim     - Setup Neovim and LSP dependencies"
 	@echo "  tmux     - Setup Tmux and TPM"
 	@echo "  starship - Setup Starship prompt"
+	@echo "  claude-skills - Link agents/skills to ~/.claude/skills for Claude agents"
 	@echo "  clean    - Remove symlinks and configurations"
 	@echo "  clean-backups - Remove old zshrc backup files"
 	@echo "  verify-zsh-completions - Test if compdef is working"
@@ -286,6 +289,29 @@ setup-alacritty:
 	mkdir -p $(CONFIG_DIR)/alacritty; \
 	ln -sf $(DOTFILES_CONFIG_DIR)/alacritty/alacritty.toml $(CONFIG_DIR)/alacritty/alacritty.toml; \
 	echo "$(GREEN)Alacritty configuration setup complete$(NC)"
+
+# Claude agents skills: symlink dotfiles agents/skills to ~/.claude/skills
+.PHONY: claude-skills
+claude-skills:
+	@echo "$(YELLOW)Linking Claude agent skills...$(NC)"; \
+	mkdir -p "$(CLAUDE_SKILLS_DIR)"; \
+	if [ ! -d "$(AGENTS_SKILLS_DIR)" ]; then \
+		echo "$(YELLOW)No agents/skills directory found, nothing to link$(NC)"; \
+		exit 0; \
+	fi; \
+	for skill_dir in "$(AGENTS_SKILLS_DIR)"/*/; do \
+		[ -d "$$skill_dir" ] || continue; \
+		skill_name=$$(basename "$$skill_dir"); \
+		skill_src="$(AGENTS_SKILLS_DIR)/$$skill_name/SKILL.md"; \
+		if [ ! -f "$$skill_src" ]; then \
+			echo "$(YELLOW)Skipping $$skill_name (no SKILL.md)$(NC)"; \
+			continue; \
+		fi; \
+		mkdir -p "$(CLAUDE_SKILLS_DIR)/$$skill_name"; \
+		ln -sf "$$skill_src" "$(CLAUDE_SKILLS_DIR)/$$skill_name/SKILL.md"; \
+		echo "$(GREEN)  $$skill_name -> $(CLAUDE_SKILLS_DIR)/$$skill_name/SKILL.md$(NC)"; \
+	done; \
+	echo "$(GREEN)Claude agent skills linked$(NC)"
 
 # Clean target
 .PHONY: clean

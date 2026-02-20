@@ -10,7 +10,7 @@ alias aws_role='echo -ne "[$(grep ^x_principal_arn ~/.aws/credentials 2>/dev/nul
 
 export PS1='$(echo -ne "${S2A_AWS_ROLE:-$(aws_role)}")'"$PS1"
 export PATH="$HOME/.klaviyocli/.bin:$PATH"
-
+export TERM=xterm-256color
 export KLAVIYO_REPOS_DIR=/Users/jarry.ngandjui/Klaviyo/Repos
 export CHARIOT_SETTINGS=/Users/jarry.ngandjui/Klaviyo/Repos/k-repo/python/klaviyo/kms/config/settings/settings_development.py
 export CURRENT_UID="$(id -u):$(id -g)"
