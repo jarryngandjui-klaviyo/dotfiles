@@ -31,7 +31,7 @@ help:
 	@echo "  nvim     - Setup Neovim and LSP dependencies"
 	@echo "  tmux     - Setup Tmux and TPM"
 	@echo "  starship - Setup Starship prompt"
-	@echo "  claude-skills - Link agents/skills to ~/.claude/skills for Claude agents"
+	@echo "  setup-claude-skills - Link agents/skills to ~/.claude/skills for Claude agents"
 	@echo "  clean    - Remove symlinks and configurations"
 	@echo "  clean-backups - Remove old zshrc backup files"
 	@echo "  verify-zsh-completions - Test if compdef is working"
@@ -291,8 +291,8 @@ setup-alacritty:
 	echo "$(GREEN)Alacritty configuration setup complete$(NC)"
 
 # Claude agents skills: symlink dotfiles agents/skills to ~/.claude/skills
-.PHONY: claude-skills
-claude-skills:
+.PHONY: setup-claude-skills
+setup-claude-skills:
 	@echo "$(YELLOW)Linking Claude agent skills...$(NC)"; \
 	mkdir -p "$(CLAUDE_SKILLS_DIR)"; \
 	if [ ! -d "$(AGENTS_SKILLS_DIR)" ]; then \
