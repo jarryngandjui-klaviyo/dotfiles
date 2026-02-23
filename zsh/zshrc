@@ -22,7 +22,7 @@ export PATH="/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/app
 # Quick access files and directories
 export PROJECTS=$HOME/Projects
 export DOTFILES=$HOME/dotfiles
-export NOTES=$HOME/Notes
+export NOTES=$HOME/secondbrain
 export CONFIG=$DOTFILES
 export ALACRITTYCONFIG=$CONFIG/alacritty/alacritty.toml
 export NVIMCONF=$CONFIG/nvim/
