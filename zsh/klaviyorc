@@ -29,11 +29,13 @@ export PATH=$PATH:$(go env GOPATH)/bin
 alias k="klaviyocli"
 
 # Klaviyo repos
+alias repos="cd $KLAVIYO_REPOS_DIR"
 alias krepo="cd $KLAVIYO_REPOS_DIR/k-repo"
 alias app="cd $KLAVIYO_REPOS_DIR/app && pyenv activate app"
 alias infra="cd $KLAVIYO_REPOS_DIR/infrastructure-deployment"
 alias fender="cd $KLAVIYO_REPOS_DIR/fender"
 alias handbook="cd $KLAVIYO_REPOS_DIR/eng-handbook"
+alias plugins="cd $KLAVIYO_REPOS_DIR/claude-plugins"
 
 # Pyenv
 eval "$(pyenv init --path)"
