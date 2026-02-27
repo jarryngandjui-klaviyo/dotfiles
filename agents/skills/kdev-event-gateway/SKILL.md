@@ -72,16 +72,12 @@ To understand the full classification pipeline, read `base.py` first — it wire
 
 #### Metrics
 
-Grep for statsd calls to see what is emitted:
-```bash
-grep -rn "incr\|timer\|gauge" ~/Klaviyo/Repos/app/src/learning/app/services/events/ingest/service/ | grep -v __pycache__
-```
-Pay attention to `slo_service.py` — it emits the AIMD congestion-decrease counter that is the primary SLO health signal (alert threshold: >10/min sustained).
+Read `slo_service.py` — it emits the AIMD congestion-decrease counter that is the primary SLO health signal (alert threshold: >10/min sustained). For the full list of metrics, read the source files and look for `statsd` call sites directly.
 
 #### Controls
 
-- **Hot settings:** grep for `hot_settings` or `HotSetting` in the service directory to find runtime toggles.
-- **Statsig gates:** grep for `check_gate` or `get_config` in the service directory.
+- **Hot settings:** look for `hot_settings.py` in the service root and any references to `HotSetting` across the service directory.
+- **Statsig gates:** look for `check_gate` or `get_config` calls in the service directory.
 - Current hot settings file: `hot_settings.py` in the service root.
 
 ---
@@ -110,10 +106,7 @@ Read `settings.py` for the canonical topic names and `router.py` for how rollout
 
 #### Metrics
 
-```bash
-grep -rn "statsd_key\.\(incr\|timer\|gauge\)" ~/Klaviyo/Repos/k-repo/python/klaviyo/data_exchange/prep_publisher/server/ | grep -v __pycache__
-```
-Key signals to look for: `publish_failed.<ErrorType>`, rollout routing counters in `router.py`, and producer latency timers in `publisher.py`.
+Read `publisher.py` and `router.py` for statsd call sites. Key signals to look for: `publish_failed.<ErrorType>`, rollout routing counters in `router.py`, and producer latency timers in `publisher.py`.
 
 The statsd base key is constructed from `settings.runtime_environment.statsd_key_prefix` — read `settings.py` → `RuntimeEnvironment` enum to see the prefix for each environment.
 
@@ -186,10 +179,7 @@ The **task state controller** does the final ordering: it sorts the in-memory bu
 
 #### Metrics
 
-```bash
-grep -rn "statsd\.\(incr\|timer\|gauge\)\|statsd_key\." ~/Klaviyo/Repos/k-repo/python/klaviyo/data_exchange/event_pipeline_orchestrator/server/ | grep -v __pycache__
-```
-Key signals: buffer memory usage per priority, task lease expirations, batch size served, consumer pause/resume events, flow-control decrease/increase counters.
+Read the server source files for statsd call sites. Key signals: buffer memory usage per priority, task lease expirations, batch size served, consumer pause/resume events, flow-control decrease/increase counters.
 
 The statsd base key is `klaviyo.internal_exchange.event_pipeline_orchestrator` + a unique per-pod suffix. Read `main.py` → `_customize_statsd_base_name()` for how the suffix is built.
 
@@ -221,10 +211,7 @@ Read the Terraform module to understand instance type, ASG sizing, and the full 
 
 #### Metrics
 
-Metrics are emitted by the runner command and the orchestrator client library. Read `event_pipeline_orchestrator_runner.py` and the client in k-repo for statsd call sites:
-```bash
-grep -rn "statsd\|incr\|timer" ~/Klaviyo/Repos/k-repo/python/klaviyo/data_exchange/event_pipeline_orchestrator/client/ | grep -v __pycache__
-```
+Read `event_pipeline_orchestrator_runner.py` and the orchestrator client in k-repo for statsd call sites.
 
 #### Controls
 
@@ -392,23 +379,6 @@ aws autoscaling set-desired-capacity \
   --desired-capacity <N>
 ```
 
-### Grep for all Statsig gates in the Event Gateway
-```bash
-# PrepPublisher
-grep -rn "get_rollout_config\|check_gate\|get_config" \
-  ~/Klaviyo/Repos/k-repo/python/klaviyo/data_exchange/prep_publisher/ | grep -v __pycache__
-
-# Orchestrator
-grep -rn "get_rollout_config\|check_gate\|get_config\|ForkSafeStatsig" \
-  ~/Klaviyo/Repos/k-repo/python/klaviyo/data_exchange/event_pipeline_orchestrator/ | grep -v __pycache__
-```
-
-### Grep for all hot settings in IngestService
-```bash
-grep -rn "hot_settings\|HotSetting\|get_hot_setting" \
-  ~/Klaviyo/Repos/app/src/learning/app/services/events/ingest/ | grep -v __pycache__
-```
-
 ---
 
 ## Working Principles
@@ -417,8 +387,8 @@ grep -rn "hot_settings\|HotSetting\|get_hot_setting" \
 - **Appfile changes flow through ArgoCD.** Call out when a proposed change touches replica count, resource limits, env vars, or node pool.
 - **Replica count has side effects.** PrepPublisher replicas × producers = MSK connections. Orchestrator replicas must match the `number_of_replicas` setting or pod IDs collide.
 - **Staging vs prod is enforced in code.** The orchestrator settings validator (`EnvAwareField`) will reject prod configs in staging — read `settings.py` to understand the rules.
-- **When adding metrics,** follow the existing statsd key pattern in the file you're editing. Run the grep above first to understand the current naming convention.
-- **When adding a Statsig gate,** check `gating.py` in the relevant service to see the existing gate/config pattern and initialization lifecycle.
+- **When adding metrics,** read existing statsd call sites in the file you're editing first to follow the established naming convention.
+- **When adding a Statsig gate,** read `gating.py` in the relevant service to see the existing gate/config pattern and initialization lifecycle.
 
 ---
 
