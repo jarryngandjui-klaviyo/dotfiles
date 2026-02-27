@@ -4,7 +4,7 @@ name: kdev-event-gateway-onboarding
 description: Interactive onboarding guide for engineers learning the Event Gateway system. Runs as a structured training session with deep dives, comprehension checks, and incident simulations. User can start, pause, and resume from any section.
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Glob, Grep, Bash, mcp__atlassian__getConfluencePage, mcp__atlassian__searchConfluenceUsingCql, mcp__atlassian__getAccessibleAtlassianResources
+allowed-tools: Read, Glob, Grep, Bash, Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__atlassian__getConfluencePage, mcp__atlassian__searchConfluenceUsingCql, mcp__atlassian__getAccessibleAtlassianResources
 model: opus
 ---
 

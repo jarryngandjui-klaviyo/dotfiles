@@ -4,7 +4,7 @@ name: kdev-event-gateway
 description: Agent context for developing on the Event Gateway (fka Event Pipeline 2025). Teaches navigation of architecture, metrics, and controls — always read local files to discover current state rather than relying on hardcoded values.
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep, Bash, Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 model: sonnet
 ---
 

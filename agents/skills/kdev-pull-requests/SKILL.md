@@ -4,7 +4,7 @@ name: kdev-pull-requests
 description: Workflow for creating Jira stories, epics, and PR descriptions at Klaviyo — covering ticket structure, acceptance criteria, PR templates, and all preferences for the CDI team.
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Glob, Bash, mcp__atlassian__getAccessibleAtlassianResources, mcp__atlassian__createJiraIssue, mcp__atlassian__editJiraIssue, mcp__atlassian__getJiraIssue, mcp__atlassian__searchJiraIssuesUsingJql, mcp__atlassian__addCommentToJiraIssue
+allowed-tools: Read, Glob, Bash, Skill, mcp__atlassian__getAccessibleAtlassianResources, mcp__atlassian__createJiraIssue, mcp__atlassian__editJiraIssue, mcp__atlassian__getJiraIssue, mcp__atlassian__searchJiraIssuesUsingJql, mcp__atlassian__addCommentToJiraIssue
 model: sonnet
 ---
 
