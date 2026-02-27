@@ -47,6 +47,7 @@ Repos:
 [ 1 ] System Overview — what is the Event Gateway and why does it exist?
 [ 2 ] IngestService Deep Dive — classification, SLO assignment, scheduling
 [ 3 ] PrepPublisher Deep Dive — gRPC proxy, Kafka producer, failure handling
+        [ 3a ] Fallback publishing — GP-03 Kafka fallback, S3 fallback, logging fallback
 [ 4 ] MSK Kafka Cluster — topic topology, priority queues, retry/DLQ design
 [ 5 ] Events Orchestrator Deep Dive
         [ 5a ] Consumers & topic assignment
@@ -55,6 +56,7 @@ Repos:
         [ 5d ] Flow control (AIMD) & backpressure
 [ 6 ] Event Pipeline Processor — queue workers, batch execution, scaling
 [ 7 ] Observability — statsd metrics, Statsig gates, hot settings, dashboards
+[ 9 ] Failed Writes Recovery — on-demand DLQ and S3 redrive with process_failed_events
 [ 8 ] Incident Simulation — hands-on triage scenarios
         [ 8a ] Scenario 1: Primary topic poll delay
         [ 8b ] Scenario 2: Orchestrator pod count mismatch
@@ -202,6 +204,44 @@ Expected answer: Failed-writes topic → Failed Writes Processor retries → DLQ
 
 - Look at the appfile to understand HPA config: what drives scale-up/scale-down? (RPS-based: 230 req/s target per pod.)
 - How does the CRC32 hash ensure consistent routing for a company? Why does consistency matter during a rollout?
+
+---
+
+## Section 3a — Fallback Publishing
+
+**Goal:** Engineer understands what happens when PrepPublisher fails to publish to the primary MSK cluster, and can trace the full fallback chain.
+
+### Navigate together
+
+Point to:
+```
+~/Klaviyo/Repos/k-repo/python/klaviyo/data_exchange/prep_publisher/client/fallback/service.py
+```
+
+Walk through the three `FallbackService` implementations. They are tried in order when the primary publish fails:
+
+1. **`KafkaSyncFallbackService`** — publishes to a fallback Kafka cluster (GP-03). Uses a synchronous `KafkaProducer` (not aiokafka), sends one event at a time with `flush()` per message to ensure durability. Emits latency metrics via `statsd_key.timer("publish_events.kafka_fallback.latency")`. If this also fails, it invokes the `error_callback` — which chains to the next fallback.
+
+2. **`S3FallbackService`** — writes events to S3 as `.json.zst` files. Bucket: `failed-writes-events-bucket` (or the Express One Zone bucket). Key format: `{topic}/{ingested_at}_{uuid}.json.zst`. Events here require **manual recovery** — the Failed Writes Processor (Section 9) must be run explicitly to redrive them back into the pipeline.
+
+3. **`LoggingFallbackService`** — last resort: writes event bytes to disk via a dedicated logger (`failed_events_writes`). Uses latin-1 encoding since it can represent all byte values unlike UTF-8. These events are also unrecoverable without manual intervention.
+
+Emphasize: the fallback chain exists to avoid data loss, but events in S3 or disk logs require an explicit on-demand job to recover. They do not auto-recover.
+
+### Check
+
+Ask: *"PrepPublisher fails to publish to the primary MSK cluster. Events fall through to S3. What needs to happen next for those events to be processed?"*
+
+Expected answer: An operator must manually run the `process_failed_events` command with `--redrive-from-s3 --execute`. Events are not automatically recovered from S3 — it requires explicit human action.
+
+Ask: *"Why does `KafkaSyncFallbackService` use synchronous `KafkaProducer` instead of the async aiokafka used by the main publisher?"*
+
+Expected answer: In a failure path, correctness matters more than throughput. Synchronous flush-per-message ensures each event is durably committed before moving on, at the cost of latency. The primary path uses async batching for performance; the fallback trades that for reliability.
+
+### Go Deeper (optional)
+
+- How does the GP-03 cluster fallback recover events? Look at the Failed Writes Processor appfile: `~/Klaviyo/Repos/infrastructure-deployment/apps/internal-exchange/failed-writes-processor/app.yaml` — this is a separate service that continuously consumes from the GP-03 fallback topic and republishes to the primary cluster.
+- What does `serialize_header(event)` send as Kafka headers? Read `server/serializer.py` — headers carry metadata like `company_id` that the DLQ redrive job uses to deserialize events.
 
 ---
 
@@ -406,6 +446,71 @@ Expected answer: The Mission Control Grafana dashboard — get a visual of the s
 
 ---
 
+## Section 9 — Failed Writes Recovery
+
+**Goal:** Engineer can operate the `process_failed_events` command to redrive events from the DLQ Kafka topic or S3 back into the pipeline.
+
+### Navigate together
+
+Point to:
+```
+~/Klaviyo/Repos/app/src/learning/app/data_exchange/commands/process_failed_events.py
+```
+
+This is a Django management command (`data_exchange process_failed_events`) run on-demand — it is not a continuous service. You invoke it when events are stranded in the DLQ or S3 after a PrepPublisher failure.
+
+Walk through the three processors:
+
+**`DLQProcessor`** — reads from the Kafka DLQ topic (`data_exchange.public.failed-event-writes-dlq-v1`). Creates a fresh consumer group per run (timestamped to avoid offset conflicts), reads from `earliest`, and commits offsets manually after each batch. Events are deserialized from protobuf bytes and republished via `EventIngestPublisher`. Processes `BATCH_SIZE=100` events at a time, grouped by `company_id`.
+
+**`S3Processor`** — reads all objects from `failed-writes-events-bucket` (or the express bucket with `--express-bucket`). Two object types:
+- Regular protobuf files: deserialized with `EventIngest.from_compressed_protobuf_bytes()`
+- `failed_serialization/` prefix files: deserialized with `pickle.loads()` (legacy format)
+
+After a successful batch republish, the S3 objects are **deleted**. If republish fails, objects remain in S3.
+
+Supports an optional `--transform <module.function>` argument: a function `(EventIngest) -> Optional[EventIngest]` applied to serialization failure events before republish. Returning `None` skips the event.
+
+**`PeekProcessor`** — diagnostic only. Given a single S3 key (`--peek <key>`), reads and deserializes the event and prints its contents. Does not republish anything. Useful for inspecting stranded events before deciding how to handle them.
+
+### Key command flags
+
+| Flag | What it does |
+|------|-------------|
+| `--redrive-from-dlq` | Consume DLQ topic and republish |
+| `--redrive-from-s3` | Read S3 bucket and republish |
+| `--execute` | **Required to actually publish.** Without it, runs in dry-run mode — logs what would happen but does nothing |
+| `--peek <s3-key>` | Inspect a single S3 object; no publish |
+| `--process-serialization-failures` | Include `failed_serialization/` objects (only valid with `--redrive-from-s3`) |
+| `--transform <path>` | Apply a transform function to serialization failure events |
+| `--express-bucket` | Use the S3 Express One Zone directory bucket instead of the standard bucket |
+
+### Workflow
+
+Teach the standard incident workflow for S3 recovery:
+1. Alert fires or someone notices events in S3
+2. **Peek first:** `--peek <key>` on a sample object to confirm the events look valid and understand what's there
+3. **Dry-run:** `--redrive-from-s3` without `--execute` — confirm what would be republished and how many
+4. **Execute:** add `--execute` to actually republish; successfully processed objects are deleted from S3
+5. Monitor the Event Gateway dashboards to confirm events flow through
+
+### Check
+
+Ask: *"You're about to run `process_failed_events --redrive-from-s3 --execute`. What could go wrong and how does the command protect against it?"*
+
+Expected answer: If republish fails, the S3 objects are NOT deleted — they stay in S3 for retry. If deserialization fails (e.g. corrupted object), the error is tracked by `ErrorCollector` and logged in a summary report. The command won't silently drop events — every failure is counted and reported.
+
+Ask: *"Why is `--execute` a separate flag rather than the default behavior?"*
+
+Expected answer: Safety. Running without `--execute` is a free, read-only dry-run that shows exactly what would happen. This prevents accidental republishing of events or operating on the wrong bucket/topic.
+
+### Go Deeper (optional)
+
+- The `TransformLoader` validates function signatures at load time — it checks parameter count and return type. This prevents silent failures when a transform is misconfigured.
+- The summary report (`SummaryReporter`) writes detailed error logs to `/tmp/logs/redrive_failed_events/` if error count exceeds `ERROR_LOG_THRESHOLD=5`. Look there if events are failing to republish.
+
+---
+
 ## Section 8 — Incident Simulation
 
 Run this section as a role-play. Present one scenario at a time. The engineer plays the on-call engineer; you play the system/narrator describing what they see.
@@ -544,3 +649,4 @@ After the engineer completes all sections, ask:
    - [Incident Runbook](https://klaviyo.atlassian.net/wiki/spaces/EN/pages/4577689613/Event+Gateway+fka+Event+Pipeline+2025+Runbook)
    - [Architecture doc](https://klaviyo.atlassian.net/wiki/spaces/EN/pages/4909891917/Event+Gateway+fka+Event+Pipeline+2025)
    - The `kdev-event-gateway` skill for day-to-day development navigation
+   - Section 9 (Failed Writes Recovery) for the `process_failed_events` redrive command reference
