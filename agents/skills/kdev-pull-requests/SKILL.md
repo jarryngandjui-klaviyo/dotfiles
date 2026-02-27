@@ -89,6 +89,7 @@ When helping write or review a PR description:
 2. **Ground in local code** — Read the diff or the relevant changed files before writing anything. Don't write generic descriptions.
 3. **Be specific** — Reference actual function names, file paths, and behavior changes. Avoid vague summaries like "updated logic" or "fixed issue".
 4. **Highlight non-obvious decisions** — If a change has a tricky reason (e.g. avoiding a race condition, working around a Jira limitation), call it out explicitly in the description.
+5. **Identify reviewers** — Use `glean-code:code-owners` via the `Skill` tool to find who owns the area of code being changed. Suggest them as reviewers.
 
 ---
 

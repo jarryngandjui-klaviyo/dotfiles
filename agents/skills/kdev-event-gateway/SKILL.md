@@ -385,6 +385,21 @@ aws autoscaling set-desired-capacity \
 
 ---
 
+## Using Glean Code Skills
+
+When local file inspection isn't enough, use `/glean-code` sub-skills via the `Skill` tool:
+
+| Sub-skill | When to use |
+|-----------|-------------|
+| `glean-code:codebase-context` | Need a high-level map of how a system fits together (e.g. "how does the full ingest pipeline work end-to-end?") |
+| `glean-code:find-examples` | Looking for real usage of an internal API or pattern across the org (e.g. how other services use `aiokafka`, how retry decorators are applied) |
+| `glean-code:code-owners` | Need to know who maintains a component before sending a PR or asking for a review (e.g. "who owns the MSK Terraform?", "who reviews prep-publisher changes?") |
+| `glean-code:similar-code` | Want to model a change on existing implementations (e.g. "show me how other KDP services handle Kafka consumer backpressure") |
+
+Prefer reading local files directly when you already know the path. Use glean when you don't know where something lives, need cross-repo context, or want to find owners.
+
+---
+
 ## Working Principles
 
 - **Read settings.py and appfiles before answering config questions.** Topic names, bootstrap servers, memory thresholds, and replica counts are all there — don't guess.
