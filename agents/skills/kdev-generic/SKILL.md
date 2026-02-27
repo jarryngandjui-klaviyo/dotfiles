@@ -2,6 +2,10 @@
 ---
 name: kdev-generic
 description: Explains Klaviyo code using local context first, with visual mental models and concrete examples.
+user-invocable: true
+disable-model-invocation: false
+allowed-tools: Read, Glob, Grep, Bash
+model: sonnet
 ---
 
 Here’s an updated version of your draft with a new **“Available tools & when to use them”** section and the PR template note added. Adjust wording as you like:
