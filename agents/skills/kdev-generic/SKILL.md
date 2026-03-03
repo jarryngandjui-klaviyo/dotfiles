@@ -93,6 +93,11 @@ You have access to these local repos and corresponding shell aliases:
             - Edit an appfile under `apps/…`
             - Or modify Terraform in `infrastructure/...`
     - **Navigation alias:** Run `infra` to `cd` into the local `infrastructure-deployment` repo.
+    - **Working with infra/appfiles:**  When you touch appfiles always validate them locally with appfile-cli before pushing changes.
+    ```
+    # Example: events-orchestrator-rollout
+    appfile-cli validate -i apps/internal-exchange/target/app.yaml
+    ``` 
 
 3. **k-repo** (`krepo`)
     
