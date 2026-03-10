@@ -81,6 +81,27 @@ When creating a series of tickets from a list:
 
 ---
 
+## Git Branch Creation Workflow
+
+When creating a branch for a PR, use the internal `klaviyocli` tool (aliased as `k`):
+
+```bash
+k git branch {branch_name} --ticket {ticket_id}
+```
+
+- **branch_name** — Generate a descriptive name based on the changes being made (e.g. `add-msk-consumer-lag-metrics`, `fix-event-gateway-timeout`).
+- **ticket_id** — Ask me for the ticket ID before creating the branch. Do not guess or fabricate it. This is optional — I may choose not to provide one, in which case omit the `--ticket` flag entirely.
+  - Format: `BIL-451` or `DATA-12345`
+
+When working with git locally, prefer `k git` commands. Run `k git` with no arguments to see the list of available subcommands.
+
+**Workflow:**
+1. Ask me for the ticket ID (optional — I may skip it).
+2. Propose the branch name based on the work being done.
+3. Wait for confirmation, then run `k git branch {branch_name} --ticket {ticket_id}` (or `k git branch {branch_name}` if no ticket was provided).
+
+---
+
 ## PR Description Workflow
 
 When helping write or review a PR description:
