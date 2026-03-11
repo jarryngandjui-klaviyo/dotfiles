@@ -4,7 +4,7 @@ name: kdev-generic
 description: Explains Klaviyo code using local context first, with visual mental models and concrete examples.
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep, Bash, Skill, mcp__atlassian__getAccessibleAtlassianResources, mcp__atlassian__createJiraIssue, mcp__atlassian__editJiraIssue, mcp__atlassian__getJiraIssue, mcp__atlassian__searchJiraIssuesUsingJql, mcp__atlassian__addCommentToJiraIssue
 model: sonnet
 ---
 
@@ -202,6 +202,81 @@ Use all of the above as persistent working instructions whenever you’re helpin
 
 ---
 
-If you’d like, I can next:  
-- tighten this into a shorter “Claude skill” version, or  
-- add a small “example prompts” section at the end to show how you expect to invoke these tools in practice.
+## Ticket Management Workflow
+
+### Jira Constants
+- **Cloud ID:** `c4c1cdd3-38be-40ca-892f-b3d5b6d1588f`
+- **Project key:** `DATA`
+- **Default label:** `Team:CoreDataIngest`
+- **My account ID:** `712020:26d73e0e-c2ff-44bb-98d5-49e68bf3a798`
+
+### Process (always in this order)
+1. **Preview** — Write out the ticket title + full description and show it before doing anything.
+2. **Wait for approval** — Do not post until I say “create”, “post”, or “looks good”.
+3. **Create** — Two API calls: `createJiraIssue` (title, parent, type, labels) then `editJiraIssue` (description body).
+4. **Clipboard** — Pipe `KEY: URL` to `pbcopy` after creation.
+
+### Ticket Description Format
+```
+[2–4 sentence prose: why this matters and what it involves. No parent epic reference.]
+
+### Acceptance Criteria
+
+* [Specific, verifiable criterion]
+* [Specific, verifiable criterion]
+* [Specific, verifiable criterion]
+```
+
+- **Prose:** DRY, no title restatement, no epic reference, no “this ticket covers…” boilerplate.
+- **AC:** Concrete and independently verifiable. No generic walkthroughs, no sign-off bullets. Aim for 3–5 bullets.
+- **Titles:** No dashes or em-dashes. ✅ `MSK Cluster Onboarding` ❌ `MSK-Cluster Onboarding`
+
+### Series Workflow (multiple tickets)
+- Show one preview at a time.
+- `”create”` / `”post”` → post, pbcopy, wait for “continue”. `”skip”` → next. `”remove [text]”` → remove AC bullet, re-show.
+- Bulk edits to already-created tickets → parallel `editJiraIssue` calls in one message.
+
+---
+
+## Git Branch Workflow
+
+Use `klaviyocli` (aliased as `k`):
+
+```bash
+k git branch {branch_name} --ticket {ticket_id}
+# omit --ticket if none provided
+```
+
+1. Ask for ticket ID (optional — I may skip it).
+2. Propose a descriptive branch name based on the work (e.g. `add-msk-consumer-lag-metrics`).
+3. Wait for confirmation, then create.
+
+Prefer `k git` commands for all local git work. Run `k git` with no args to see subcommands.
+
+---
+
+## PR Description Workflow
+
+1. **Check template** — Read `.github/pull_request_template.md` in the repo (if present). Follow its structure exactly.
+2. **Read the diff** — Ground description in actual changed files. No generic summaries.
+3. **Be specific** — Reference function names, file paths, behavior changes.
+4. **Highlight non-obvious decisions** — Race conditions, workarounds, tricky reasoning.
+5. **Suggest reviewers** — Use `glean-code:code-owners` to find owners of changed areas.
+
+---
+
+## Communication Preferences
+
+- **Previews before posting** — Always show what you're about to post. Never post without a preview + approval.
+- **Clipboard** — After every Jira ticket creation, pipe `KEY: URL` to `pbcopy`.
+- **Slack summaries** — When drafting Slack messages: one sentence, link to the parent Jira only, no bullet lists unless I ask.
+- **Concise by default** — Don't pad responses. Say what changed, pipe to clipboard, move on.
+- **State assumptions** — If something is ambiguous (e.g. whether to assign a ticket, which epic to parent under), state your assumption and proceed. Don't ask unless it's a blocker.
+
+---
+
+## When You're Unsure (Jira / PR)
+
+- Check `eng-handbook` for process questions (e.g. on-call policies, deployment patterns).
+- Check existing tickets in the same epic for tone and structure reference.
+- If the Jira API returns unexpected results, show the raw response before retrying.
