@@ -341,4 +341,16 @@ if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
     tmux attach-session -t workspace || tmux new-session -s workspace
 fi
 
+# Kubernetes completions
+# =====================
+kubebash() {
+  local ctx="$1"
+  local ns="$2"
+  local pod="$3"
+
+  kubectl -n "$ns" --context "$ctx" exec -it \
+    "$(kubectl -n "$ns" --context "$ctx" get pods | grep "$pod" | awk '{print $1}' | head -n1)" \
+    -- /bin/bash
+}
+
 # === DOTFILES ZSH CONFIGURATION END - DO NOT EDIT MANUALLY ===

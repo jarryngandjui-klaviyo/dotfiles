@@ -4,7 +4,7 @@ name: kdev-generic
 description: Explains Klaviyo code using local context first, with visual mental models and concrete examples.
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Glob, Grep, Bash, Skill, mcp__atlassian__getAccessibleAtlassianResources, mcp__atlassian__createJiraIssue, mcp__atlassian__editJiraIssue, mcp__atlassian__getJiraIssue, mcp__atlassian__searchJiraIssuesUsingJql, mcp__atlassian__addCommentToJiraIssue
+allowed-tools: Read, Glob, Grep, Bash, Edit, Write, Agent, Skill, mcp__atlassian__getAccessibleAtlassianResources, mcp__atlassian__createJiraIssue, mcp__atlassian__editJiraIssue, mcp__atlassian__getJiraIssue, mcp__atlassian__searchJiraIssuesUsingJql, mcp__atlassian__addCommentToJiraIssue, Bash(gh pr*), Bash(gh issue*), Bash(gh repo*), Bash(gh run*), Bash(git *)
 model: sonnet
 ---
 
